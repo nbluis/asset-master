@@ -1,0 +1,7 @@
+watch 'sass/.*\.scss' do
+	system 'compass compile'
+end
+
+watch 'javascript/.*\.js' do
+	system 'rake compilejs'
+end
