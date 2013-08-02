@@ -1,7 +1,7 @@
 watch 'sass/.*\.scss' do
-	system 'rake compile_scss'
+  system 'rake compile_scss'
 end
 
 watch 'javascript/.*\.js' do
-	system 'rake compile_js'
+  system 'rake compile_js'
 end
