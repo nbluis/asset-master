@@ -1,5 +1,3 @@
-require 'rake'
-require 'rubygems'
 require 'watchr'
 require 'yaml'
 require 'uglifier'
@@ -20,12 +18,20 @@ def join_files out_file_path, file_paths
 	out_file.close
 end
 
+def uglify source_file, dest_file, delete_source = true
+		uglified_file = File.new(dest_file, 'w')
+		uglified_file.write(Uglifier.new.compile(File.read(source_file)))
+		File.delete(source_file) if delete_source
+end
+
 task :watch do
 	system 'watchr watchr_script'
 end
 
-task :compilejs do
+task :compile_js do
+	puts "Compiling js files...."
 	yml = yml_load
+
 	yml['js'].each do |file_group, files|
 		output_file_path = "_assets/js/#{file_group}"
 		tmp_file_path = "#{output_file_path}.tmp"
@@ -33,11 +39,14 @@ task :compilejs do
 		file_names = files.collect do |file|
 			File.join(File.dirname(File.expand_path(__FILE__)), "javascript/#{file}")
 		end
+
 		join_files tmp_file_path, file_names
-
-		uglified_file = File.new(output_file_path, 'w')
-		uglified_file.write(Uglifier.new.compile(File.read(tmp_file_path)))
-
-		File.delete(tmp_file_path)
+		uglify tmp_file_path, output_file_path
+		puts "#{output_file_path} compiled."
 	end
+end
+
+task :compile_scss do
+	puts "Compiling scss files...."
+	system 'compass compile'
 end

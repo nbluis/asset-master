@@ -3,7 +3,7 @@ js:
   - first_module.js
   - second_module.js
 
-scss:
- app.css:
-  - first_module.scss
-  - second_module.scss
+#scss:
+# app.css:
+#  - first_module.scss
+#  - second_module.scss

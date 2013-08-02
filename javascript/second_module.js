@@ -1,5 +1,5 @@
 $(function() {
 	$('button').on('click', function() {
-		alert('second module');
+		alert('second module2');
 	});
 });
