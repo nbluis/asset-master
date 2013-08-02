@@ -3,27 +3,41 @@ require 'rubygems'
 require 'watchr'
 require 'yaml'
 require 'uglifier'
+require 'yaml'
+
+def yml_load
+	YAML.load(File.read('asset-master.yml'))
+end
+
+def join_files out_file_path, file_paths
+	File.delete(out_file_path) if File.exist?(out_file_path)
+
+	out_file = File.new(out_file_path, 'w')
+	file_paths.each do |file_path|
+		out_file.write(File.read(file_path))
+		out_file.write("\n")
+	end
+	out_file.close
+end
 
 task :watch do
 	system 'watchr watchr_script'
 end
 
 task :compilejs do
-	tmp_file_path = '_assets/js/tmp_app.js'
-	output_file_path = "_assets/js/app.js"
-	File.delete(tmp_file_path) if File.exist?(tmp_file_path)
-	File.delete(output_file_path) if File.exist?(output_file_path)
+	yml = yml_load
+	yml['js'].each do |file_group, files|
+		output_file_path = "_assets/js/#{file_group}"
+		tmp_file_path = "#{output_file_path}.tmp"
 
-	tmp_file = File.new(tmp_file_path, 'w')
-	File.open('jsfiles').each do |js_file_path|
-		file = File.join(File.dirname(File.expand_path(__FILE__)), js_file_path).gsub(/\n/,'')
-		tmp_file.write(File.read(file))
-		tmp_file.write("\n")
+		file_names = files.collect do |file|
+			File.join(File.dirname(File.expand_path(__FILE__)), "javascript/#{file}")
+		end
+		join_files tmp_file_path, file_names
+
+		uglified_file = File.new(output_file_path, 'w')
+		uglified_file.write(Uglifier.new.compile(File.read(tmp_file_path)))
+
+		File.delete(tmp_file_path)
 	end
-	tmp_file.close
-
-	uglified_file = File.new(output_file_path, 'w')
-	uglified_file.write(Uglifier.new.compile(File.read(tmp_file_path)))
-
-	File.delete(tmp_file_path)
 end
